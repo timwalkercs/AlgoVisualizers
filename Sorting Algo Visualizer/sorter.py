@@ -2,6 +2,9 @@ import imp
 from tkinter import *
 from tkinter import ttk
 import random
+from bubbleSort import bubbleSort
+from quickSort import quickSort
+from mergeSort import mergeSort
 
 
 #Initial UI setup
@@ -21,8 +24,10 @@ canvas.grid(row=1, column=0, padx=10, pady=5)
 
 #Variables
 algoChoice = StringVar()
+data = []
 
-def draw(data):
+def draw(data, colorArray):
+    Clear()
     canvas_height = 380
     canvas_width = 600
     gap = 10 #space between bars
@@ -37,63 +42,50 @@ def draw(data):
         x1 = (i+1)*xWidth + offset
         y1 = canvas_height
 
-        canvas.create_rectangle(x0, y0, x1, y1, fill='#4f87db')
+        canvas.create_rectangle(x0, y0, x1, y1, fill=colorArray[i])
         canvas.create_text(x0+2, y0, anchor=SW, text=str(data[i]))
+    root.update_idletasks()
 
 def Generate():
+    global data
+
     canvas.delete('all')
-    print('Selected Sorting Method: ' + algoChoice.get())
+    min = int(minVal.get())
+    max = int(maxVal.get())
+    size = int(sizeEntry.get())
 
-    try:
-        min = int(minVal.get())
-    except:
-        print('Error with min. input, defaulting to: 0')
-        min = 0
-    else:
-        if min<0: 
-            min=0
-            print('Min must be non-negative integer, defaulting to: 0')
-
-    try:
-        max = int(maxVal.get())
-    except:
-        max=25
-        print('Error with min input, defaulting to: 25')
-    else:
-        if max<0: 
-            max=25
-            print('Max must be positive integer, defaulting to: 25')
-
-    try:
-        size = int(sizeEntry.get())
-    except:
-        size=10
-        print('Error with size input, defaulting to: 10')
-    else:
-        if size<0: 
-            size=10
-            print('Size must be positive integer, defaulting to: 10')
-
-    data=[]
+    data = []
     for i in range(size):
         data.append(random.randrange(min,max+1))
 
-
-    draw(data)
+    draw(data, ['#4f87db' for x in range(len(data))])
 
 def Clear():
     canvas.delete('all')
 
 def Start():
-    canvas.delete('all')
+    global data
+    if not data: return
+    selection = algoChoice.get()
+    tick = runSpeed.get()
+    print('Selected Sorting Method: ' + selection)
+
+    if selection == 'Merge Sort':
+        mergeSort(data, draw, tick)
+    elif selection == 'Quicksort':
+        quickSort(data, 0, len(data)-1, draw, tick)
+        draw(data, ['#4bdb95' for x in range(len(data))])
+    elif selection == 'Bubble Sort':
+        bubbleSort(data, draw, tick)
+        
 
 
-#--------Interface Area - the top portion of the window----------
+#--------Interface Area - variable seelection portion of window----------
 
 #--------Row[0] - Sorting choice and Generate button-------------
 
 #Selection box for algo choice
-algoMenu = ttk.Combobox(frame, textvariable=algoChoice, values=['Merge Sort', 'Quicksort', 'Bubble Sort'])
+algoMenu = ttk.Combobox(frame, state="readonly", textvariable=algoChoice, values=['Merge Sort', 'Quicksort', 'Bubble Sort'])
 algoMenu.grid(row=0, column=0, padx=5, pady=5, sticky=W)
 algoMenu.current(0)
 
@@ -104,7 +96,7 @@ runSpeed.grid(row=0, column=1, padx=5, pady=5)
 Button(frame, text='Generate', command=Generate, bg='#ff7070').grid(row=0, column=2, padx=5, pady=5)
 
 #START BUTTON
-Button(frame, text='Start Algorithm', command=Generate, bg='#ff7070').grid(row=0, column=3, padx=5, pady=5)
+Button(frame, text='Start Algorithm', command=Start, bg='#ff7070').grid(row=0, column=3, padx=5, pady=5)
 
 #-------------Row[1] - Size, Min, Max entry--------------
 sizeEntry = Scale(frame, from_=5.0, to=25.0, length=200, digits=2, resolution=1, orient=HORIZONTAL, label="Size")
