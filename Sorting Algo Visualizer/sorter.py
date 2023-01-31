@@ -72,11 +72,13 @@ def Start():
 
     if selection == 'Merge Sort':
         mergeSort(data, draw, tick)
+        draw(data, ['#4bdb95' for x in range(len(data))])
     elif selection == 'Quicksort':
         quickSort(data, 0, len(data)-1, draw, tick)
         draw(data, ['#4bdb95' for x in range(len(data))])
     elif selection == 'Bubble Sort':
         bubbleSort(data, draw, tick)
+        draw(data, ['#4bdb95' for x in range(len(data))])
         
 
 
